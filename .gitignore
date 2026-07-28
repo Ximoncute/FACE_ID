@@ -22,5 +22,4 @@ backend/attendance.db
 # Logs & System Files
 *.log
 .DS_Store
-.vscode/
 .idea/
