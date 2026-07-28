@@ -20,8 +20,9 @@ Repository GitHub: **[https://github.com/Ximoncute/FACE_ID.git](https://github.c
 4. [Hướng Dẫn Khởi Chạy Nhanh (1-Click Start)](#-hướng-dẫn-khởi-chạy-nhanh-1-click-start)
 5. [Hướng Dẫn Cài Đặt Chi Tiết (Thủ Công)](#-hướng-dẫn-cài-đặt-chi-tiết-thủ-công)
 6. [Tài Liệu Chi Tiết Về API (API Documentation)](#-tài-liệu-chi-tiết-về-api-api-documentation)
-7. [Cấu Trúc Thư Mục Dự Án](#-cấu-trúc-thư-mục-dự-án)
-8. [Xử Lý Sự Cố Thường Gặp (Troubleshooting)](#-xử-lý-sự-cố-thường-gặp-troubleshooting)
+7. [Hướng Dẫn Xem Cơ Sở Dữ Liệu (Database View Guide)](#-hướng-dẫn-xem-cơ-sở-dữ-liệu-database-view-guide)
+8. [Cấu Trúc Thư Mục Dự Án](#-cấu-trúc-thư-mục-dự-án)
+9. [Xử Lý Sự Cố Thường Gặp (Troubleshooting)](#-xử-lý-sự-cố-thường-gặp-troubleshooting)
 
 ---
 
@@ -189,6 +190,32 @@ npm run dev
 
 ### 4. Benchmark So sánh Mô hình (`GET /analytics/compare`)
 - **Phản hồi mẫu**: Thời gian trích xuất trung bình (ms) của từng mô hình AI.
+
+---
+
+## 🗄️ Hướng Dẫn Xem Cơ Sở Dữ Liệu (Database View Guide)
+
+Cơ sở dữ liệu của hệ thống được lưu trữ dưới dạng **SQLite** tại đường dẫn: `backend/attendance.db` (chứa 3 bảng chính: `users`, `face_embeddings`, `attendance_logs`).
+
+Dưới đây là 3 cách đơn giản để xem và truy vấn dữ liệu:
+
+### 1. Sử dụng phần mềm Giao diện GUI (Dễ xem nhất - Khuyên dùng)
+- **DB Browser for SQLite (Miễn phí & Nhẹ)**: Tải tại [https://sqlitebrowser.org/](https://sqlitebrowser.org/), nhấn **Open Database** và chọn file `backend/attendance.db`.
+- **VS Code / Antigravity IDE Extension**: Cài đặt extension **SQLite Viewer**, sau đó click đúp trực tiếp vào file `backend/attendance.db` để xem bảng dữ liệu.
+
+### 2. Chạy Script in dữ liệu ra Terminal (`view_db.py`)
+Mở Terminal và thực hiện câu lệnh:
+```bash
+python backend/view_db.py
+# Hoặc trên Windows venv:
+.\backend\venv\Scripts\python.exe backend\view_db.py
+```
+> Script sẽ tự động in danh sách Nhân viên (`users`), Vector đặc trưng (`face_embeddings`) và Lịch sử chấm công (`attendance_logs`) dạng bảng sạch sẽ.
+
+### 3. Xem trực tuyến dạng JSON qua Swagger API Docs
+Khi Backend đang chạy (`http://127.0.0.1:8000`), truy cập đường dẫn API Docs:
+- **URL**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- Tìm endpoint **`GET /logs`** ➔ nhấn **Try it out** ➔ **Execute** để xem dữ liệu JSON phản hồi trực tiếp.
 
 ---
 
