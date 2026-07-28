@@ -93,6 +93,7 @@ export default function CheckIn() {
             ref={webcamRef}
             screenshotFormat="image/jpeg"
             className="webcam-video"
+            mirrored={true}
             width={500}
             videoConstraints={{
               width: 500,

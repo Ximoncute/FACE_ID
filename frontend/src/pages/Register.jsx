@@ -72,6 +72,7 @@ export default function Register() {
           ref={webcamRef}
           screenshotFormat="image/jpeg"
           className="webcam-video"
+          mirrored={true}
           width={400}
           videoConstraints={{
             width: 400,
