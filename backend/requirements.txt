@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+deepface
+opencv-python-headless
+faiss-cpu
+scikit-learn
+pandas
+python-multipart
+pydantic
+tf-keras

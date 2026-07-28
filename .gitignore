@@ -1,0 +1,26 @@
+# Virtual Environments
+backend/venv/
+venv/
+env/
+ENV/
+
+# Node Dependencies & Build Output
+frontend/node_modules/
+frontend/dist/
+frontend/dist-zip/
+node_modules/
+dist/
+
+# Python Cache & Databases
+__pycache__/
+*.py[cod]
+*$py.class
+backend/attendance.db
+*.db
+*.sqlite3
+
+# Logs & System Files
+*.log
+.DS_Store
+.vscode/
+.idea/
