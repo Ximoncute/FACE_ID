@@ -157,3 +157,38 @@ h1, h2, h3 {
   color: var(--error);
   border: 1px solid var(--error);
 }
+
+/* Progress Bar Styles */
+.progress-container {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 14px;
+  margin: 1.2rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+  border-radius: 8px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.progress-bar.success {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.9);
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  color: #10b981;
+  margin-top: 0.3rem;
+  letter-spacing: 0.5px;
+}
+

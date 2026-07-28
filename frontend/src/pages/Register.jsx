@@ -9,9 +9,11 @@ export default function Register() {
   const [name, setName] = useState('')
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [progressText, setProgressText] = useState('')
 
   const capture = useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot()
+    const imageSrc = webcamRef.current?.getScreenshot()
     return imageSrc
   }, [webcamRef])
 
@@ -29,6 +31,15 @@ export default function Register() {
 
     setLoading(true)
     setStatus(null)
+    setProgress(15)
+    setProgressText('Đang chụp ảnh & trích xuất đặc trưng...')
+
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev < 85) return prev + 15
+        return prev
+      })
+    }, 350)
 
     try {
       const formData = new FormData()
@@ -36,15 +47,19 @@ export default function Register() {
       formData.append('image', image)
 
       const response = await axios.post(`${API_URL}/register`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 60000
       })
       
+      clearInterval(progressInterval)
+      setProgress(100)
+      setProgressText(`🎉 Đăng ký thành công: ${response.data.name}!`)
       setStatus({ type: 'success', msg: `Đăng ký thành công: ${response.data.name}` })
       setName('')
     } catch (error) {
+      clearInterval(progressInterval)
+      setProgress(0)
+      setProgressText('')
       console.error(error)
       const errorMsg = error.response?.data?.detail || error.message || 'Chưa khởi chạy Backend (Vui lòng chạy file run.bat)!';
       setStatus({ 
@@ -60,6 +75,18 @@ export default function Register() {
     <div className="glass-panel">
       <h2 style={{textAlign: 'center'}}>Đăng ký nhân viên mới</h2>
       
+      {(loading || progress > 0) && (
+        <div style={{ margin: '1rem 0' }}>
+          <div className="progress-container">
+            <div 
+              className={`progress-bar ${progress === 100 ? 'success' : ''}`}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="progress-text">{progressText || `${progress}%`}</div>
+        </div>
+      )}
+
       {status && (
         <div className={`alert alert-${status.type}`}>
           {status.msg}

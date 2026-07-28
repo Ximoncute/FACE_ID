@@ -10,6 +10,8 @@ export default function CheckIn() {
   const [modelName, setModelName] = useState('Facenet512')
   const [isScanning, setIsScanning] = useState(false)
   const [logs, setLogs] = useState([])
+  const [progress, setProgress] = useState(0)
+  const [progressText, setProgressText] = useState('')
 
   const fetchLogs = async () => {
     try {
@@ -29,6 +31,9 @@ export default function CheckIn() {
     if (!image) return
 
     try {
+      setProgress(40)
+      setProgressText('Đang quét khuôn mặt & so khớp FAISS...')
+
       const formData = new FormData()
       formData.append('image', image)
       formData.append('model_name', modelName)
@@ -37,6 +42,8 @@ export default function CheckIn() {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       
+      setProgress(100)
+      setProgressText(`🎉 Nhận diện thành công: Xin chào ${response.data.name}!`)
       setStatus({ 
         type: 'success', 
         msg: `Xin chào ${response.data.name}! (Score: ${response.data.confidence.toFixed(2)}, Time: ${response.data.time_taken_ms.toFixed(0)}ms)` 
@@ -45,9 +52,15 @@ export default function CheckIn() {
       
       // Stop scanning on success for a moment
       setIsScanning(false)
-      setTimeout(() => setStatus(null), 3000)
+      setTimeout(() => {
+        setStatus(null)
+        setProgress(0)
+        setProgressText('')
+      }, 3500)
 
     } catch (error) {
+      setProgress(0)
+      setProgressText('')
       const errorMsg = error.response?.data?.detail || 'Chưa nhận diện được khuôn mặt';
       setStatus({ type: 'error', msg: errorMsg });
     }
@@ -80,6 +93,18 @@ export default function CheckIn() {
             <option value="VGG-Face">Thuật toán: VGG-Face (Nhanh)</option>
           </select>
         </div>
+
+        {(isScanning || progress > 0) && (
+          <div style={{ margin: '1rem 0' }}>
+            <div className="progress-container">
+              <div 
+                className={`progress-bar ${progress === 100 ? 'success' : ''}`}
+                style={{ width: `${progress === 0 ? 20 : progress}%` }}
+              />
+            </div>
+            <div className="progress-text">{progressText || 'Đang quét...' }</div>
+          </div>
+        )}
 
         {status && (
           <div className={`alert alert-${status.type}`}>
