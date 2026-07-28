@@ -158,6 +158,27 @@ def compare_models():
     results = benchmark_models()
     return {"data": results}
 
+@app.get("/users", response_model=list[schemas.UserResponse])
+def get_users(db: Session = Depends(get_db)):
+    return db.query(models.User).order_by(models.User.id.desc()).all()
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy nhân viên trong cơ sở dữ liệu")
+
+    user_name = user.name
+    db.query(models.FaceEmbedding).filter(models.FaceEmbedding.user_id == user_id).delete()
+    db.query(models.AttendanceLog).filter(models.AttendanceLog.user_id == user_id).delete()
+    db.delete(user)
+    db.commit()
+
+    # Refresh FAISS vector search engines
+    load_existing_embeddings()
+
+    return {"message": f"Đã xóa thành công nhân viên #{user_id} - {user_name}"}
+
 @app.get("/logs", response_model=list[schemas.AttendanceLogResponse])
 def get_logs(db: Session = Depends(get_db)):
     logs = db.query(models.AttendanceLog).order_by(models.AttendanceLog.timestamp.desc()).limit(50).all()
