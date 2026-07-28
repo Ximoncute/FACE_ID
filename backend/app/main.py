@@ -160,5 +160,17 @@ def compare_models():
 
 @app.get("/logs", response_model=list[schemas.AttendanceLogResponse])
 def get_logs(db: Session = Depends(get_db)):
-    return db.query(models.AttendanceLog).order_by(models.AttendanceLog.timestamp.desc()).limit(50).all()
+    logs = db.query(models.AttendanceLog).order_by(models.AttendanceLog.timestamp.desc()).limit(50).all()
+    results = []
+    for log in logs:
+        user_name = log.user.name if log.user else f"User #{log.user_id}"
+        results.append(schemas.AttendanceLogResponse(
+            id=log.id,
+            user_id=log.user_id,
+            user_name=user_name,
+            timestamp=log.timestamp,
+            confidence_score=log.confidence_score,
+            model_used=log.model_used
+        ))
+    return results
 

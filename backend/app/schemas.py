@@ -16,6 +16,7 @@ class UserResponse(BaseModel):
 class AttendanceLogResponse(BaseModel):
     id: int
     user_id: int
+    user_name: Optional[str] = None
     timestamp: datetime
     confidence_score: float
     model_used: str

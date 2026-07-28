@@ -39,12 +39,18 @@ else:
 
 # 3. Bang Attendance Logs
 print("\n--- 3. BANG LICH SU CHAM CONG (attendance_logs) ---")
-logs = cursor.execute("SELECT id, user_id, timestamp, confidence_score, model_used FROM attendance_logs ORDER BY timestamp DESC LIMIT 20").fetchall()
+logs = cursor.execute("""
+    SELECT l.id, l.user_id, u.name, l.timestamp, l.confidence_score, l.model_used 
+    FROM attendance_logs l 
+    LEFT JOIN users u ON l.user_id = u.id 
+    ORDER BY l.timestamp DESC LIMIT 20
+""").fetchall()
 if logs:
-    for l in logs:
-        print(f"Log #{l[0]} | User #{l[1]} | Thoi gian: {l[2]} | Score L2: {l[3]:.4f} | Model: {l[4]}")
+    for idx, l in enumerate(logs, start=1):
+        name_str = l[2] if l[2] else f"User #{l[1]}"
+        print(f"STT: #{idx} | Ten: {name_str} | Thoi gian: {l[3]} | Score L2: {l[4]:.4f} | Model: {l[5]}")
 else:
-    print("(Chua co lich su cham cong nào)")
+    print("(Chua co lich su cham cong nao)")
 
 print("\n==================================================")
 conn.close()

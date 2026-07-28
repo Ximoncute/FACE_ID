@@ -145,17 +145,19 @@ export default function CheckIn() {
         <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
           <thead>
             <tr style={{borderBottom: '1px solid rgba(255,255,255,0.2)'}}>
-              <th style={{padding: '0.5rem'}}>ID User</th>
+              <th style={{padding: '0.5rem', width: '60px'}}>STT</th>
+              <th style={{padding: '0.5rem'}}>Họ và Tên</th>
               <th style={{padding: '0.5rem'}}>Thời gian</th>
               <th style={{padding: '0.5rem'}}>Model</th>
               <th style={{padding: '0.5rem'}}>Độ lệch (Distance)</th>
             </tr>
           </thead>
           <tbody>
-            {logs.map(log => (
+            {logs.map((log, index) => (
               <tr key={log.id} style={{borderBottom: '1px solid rgba(255,255,255,0.05)'}}>
-                <td style={{padding: '0.5rem'}}>User #{log.user_id}</td>
-                <td style={{padding: '0.5rem'}}>{new Date(log.timestamp).toLocaleString()}</td>
+                <td style={{padding: '0.5rem', fontWeight: 'bold', color: 'var(--text-secondary)'}}>#{index + 1}</td>
+                <td style={{padding: '0.5rem', fontWeight: '600', color: 'var(--text-primary)'}}>{log.user_name || log.name || `User #${log.user_id}`}</td>
+                <td style={{padding: '0.5rem'}}>{new Date(log.timestamp).toLocaleString('vi-VN')}</td>
                 <td style={{padding: '0.5rem'}}>
                   <span style={{
                     background: 'rgba(59, 130, 246, 0.2)', 
@@ -169,7 +171,7 @@ export default function CheckIn() {
               </tr>
             ))}
             {logs.length === 0 && (
-              <tr><td colSpan="4" style={{padding: '1rem', textAlign: 'center'}}>Chưa có dữ liệu</td></tr>
+              <tr><td colSpan="5" style={{padding: '1rem', textAlign: 'center'}}>Chưa có dữ liệu</td></tr>
             )}
           </tbody>
         </table>
