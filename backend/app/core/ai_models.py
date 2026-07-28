@@ -11,11 +11,17 @@ class FaceRecognizer:
     def extract_embedding(self, image: np.ndarray, model_name: str = "Facenet512"):
         """
         Extracts face embedding vector from an image with L2 normalization.
+        Optimized for ultra-fast performance.
         """
         start_time = time.time()
         
-        # Strategy: try opencv with enforce_detection=True first.
-        # If detection fails, try enforce_detection=False as fallback.
+        # Speed Optimization: Resize large webcam frame to max width 360px
+        if image is not None and image.shape[1] > 360:
+            h, w = image.shape[:2]
+            target_w = 360
+            target_h = int(h * (360 / w))
+            image = cv2.resize(image, (target_w, target_h), interpolation=cv2.INTER_AREA)
+
         backends_to_try = [
             ("opencv", True),
             ("opencv", False)

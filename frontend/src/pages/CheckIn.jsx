@@ -71,7 +71,7 @@ export default function CheckIn() {
     if (isScanning) {
       interval = setInterval(() => {
         captureAndCheckIn()
-      }, 1500) // Scan every 1.5s
+      }, 600) // Scan every 600ms for instant real-time feedback
     }
     return () => clearInterval(interval)
   }, [isScanning, captureAndCheckIn])
