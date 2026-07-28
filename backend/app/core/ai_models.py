@@ -19,11 +19,11 @@ class FaceRecognizer:
         if image is None:
             return None, 0.0
 
-        # 1. Speed Optimization: Resize large input frame to max width 320px
-        if image.shape[1] > 320:
+        # 1. Speed Optimization: Resize input frame to max width 280px for instant detection
+        if image.shape[1] > 280:
             h, w = image.shape[:2]
-            target_w = 320
-            target_h = int(h * (320 / w))
+            target_w = 280
+            target_h = int(h * (280 / w))
             image = cv2.resize(image, (target_w, target_h), interpolation=cv2.INTER_AREA)
 
         # 2. Fast C++ Haar Cascade face detection (~1ms)

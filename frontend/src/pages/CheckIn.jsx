@@ -6,6 +6,7 @@ const API_URL = 'http://127.0.0.1:8000'
 
 export default function CheckIn() {
   const webcamRef = useRef(null)
+  const isProcessingRef = useRef(false)
   const [status, setStatus] = useState(null)
   const [modelName, setModelName] = useState('Facenet512')
   const [isScanning, setIsScanning] = useState(false)
@@ -25,11 +26,12 @@ export default function CheckIn() {
   }, [])
 
   const captureAndCheckIn = useCallback(async () => {
-    if (!webcamRef.current) return
+    if (isProcessingRef.current || !webcamRef.current) return
 
     const image = webcamRef.current.getScreenshot()
     if (!image) return
 
+    isProcessingRef.current = true
     try {
       setProgress(40)
       setProgressText('Đang quét khuôn mặt & so khớp FAISS...')
@@ -39,7 +41,8 @@ export default function CheckIn() {
       formData.append('model_name', modelName)
 
       const response = await axios.post(`${API_URL}/checkin`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 10000
       })
       
       setProgress(100)
@@ -50,7 +53,6 @@ export default function CheckIn() {
       })
       fetchLogs()
       
-      // Stop scanning on success for a moment
       setIsScanning(false)
       setTimeout(() => {
         setStatus(null)
@@ -62,18 +64,37 @@ export default function CheckIn() {
       setProgress(0)
       setProgressText('')
       const errorMsg = error.response?.data?.detail || 'Chưa nhận diện được khuôn mặt';
-      setStatus({ type: 'error', msg: errorMsg });
+      setStatus({ type: 'error', msg: errorMsg })
+    } finally {
+      isProcessingRef.current = false
     }
   }, [webcamRef, modelName])
 
   useEffect(() => {
-    let interval;
-    if (isScanning) {
-      interval = setInterval(() => {
-        captureAndCheckIn()
-      }, 600) // Scan every 600ms for instant real-time feedback
+    let timer
+    let active = true
+
+    const loop = async () => {
+      if (isScanning && active && !isProcessingRef.current) {
+        await captureAndCheckIn()
+      }
+      if (isScanning && active) {
+        timer = setTimeout(loop, 250)
+      }
     }
-    return () => clearInterval(interval)
+
+    if (isScanning) {
+      loop()
+    } else {
+      setProgress(0)
+      setProgressText('')
+      isProcessingRef.current = false
+    }
+
+    return () => {
+      active = false
+      if (timer) clearTimeout(timer)
+    }
   }, [isScanning, captureAndCheckIn])
 
   return (
