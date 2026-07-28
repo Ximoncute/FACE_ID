@@ -6,47 +6,73 @@ import time
 class FaceRecognizer:
     def __init__(self, models_to_load=["Facenet512", "ArcFace", "VGG-Face"]):
         self.models = models_to_load
-        print("FaceRecognizer initialized. AI models ready for requests.")
+        cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+        self.face_cascade = cv2.CascadeClassifier(cascade_path)
+        print("FaceRecognizer initialized. Fast Haar Cascade face detector active.")
                 
     def extract_embedding(self, image: np.ndarray, model_name: str = "Facenet512"):
         """
         Extracts face embedding vector from an image with L2 normalization.
-        Optimized for ultra-fast performance.
+        Ultra-fast implementation using OpenCV C++ face crop + DeepFace skip detector.
         """
         start_time = time.time()
-        
-        # Speed Optimization: Resize large webcam frame to max width 360px
-        if image is not None and image.shape[1] > 360:
+        if image is None:
+            return None, 0.0
+
+        # 1. Speed Optimization: Resize large input frame to max width 320px
+        if image.shape[1] > 320:
             h, w = image.shape[:2]
-            target_w = 360
-            target_h = int(h * (360 / w))
+            target_w = 320
+            target_h = int(h * (320 / w))
             image = cv2.resize(image, (target_w, target_h), interpolation=cv2.INTER_AREA)
 
-        backends_to_try = [
-            ("opencv", True),
-            ("opencv", False)
-        ]
-        
-        for backend, enforce in backends_to_try:
+        # 2. Fast C++ Haar Cascade face detection (~1ms)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=3, minSize=(30, 30))
+
+        if len(faces) > 0:
+            # Sort by area and select largest face
+            x, y, w, h = max(faces, key=lambda rect: rect[2] * rect[3])
+            margin = int(0.1 * w)
+            x1 = max(0, x - margin)
+            y1 = max(0, y - margin)
+            x2 = min(image.shape[1], x + w + margin)
+            y2 = min(image.shape[0], y + h + margin)
+            crop_img = image[y1:y2, x1:x2]
+
             try:
                 result = DeepFace.represent(
-                    img_path=image,
+                    img_path=crop_img,
                     model_name=model_name,
-                    enforce_detection=enforce,
-                    detector_backend=backend
+                    enforce_detection=False,
+                    detector_backend="skip"
                 )
                 if result and len(result) > 0 and 'embedding' in result[0]:
                     raw_emb = np.array(result[0]['embedding'], dtype=np.float32)
                     norm = np.linalg.norm(raw_emb)
-                    if norm > 0:
-                        normalized_emb = (raw_emb / norm).tolist()
-                    else:
-                        normalized_emb = raw_emb.tolist()
+                    normalized_emb = (raw_emb / norm).tolist() if norm > 0 else raw_emb.tolist()
                     time_taken = (time.time() - start_time) * 1000 # ms
                     return normalized_emb, time_taken
-            except Exception as e:
-                continue
-                
+            except Exception:
+                pass
+
+        # Fallback if no face detected by Cascade
+        try:
+            result = DeepFace.represent(
+                img_path=image,
+                model_name=model_name,
+                enforce_detection=False,
+                detector_backend="opencv"
+            )
+            if result and len(result) > 0 and 'embedding' in result[0]:
+                raw_emb = np.array(result[0]['embedding'], dtype=np.float32)
+                norm = np.linalg.norm(raw_emb)
+                normalized_emb = (raw_emb / norm).tolist() if norm > 0 else raw_emb.tolist()
+                time_taken = (time.time() - start_time) * 1000 # ms
+                return normalized_emb, time_taken
+        except Exception:
+            pass
+
         return None, (time.time() - start_time) * 1000
 
 face_recognizer = FaceRecognizer()
