@@ -12,6 +12,7 @@ import numpy as np
 import base64
 import json
 import time
+import datetime
 
 from .database import engine, Base, get_db
 from . import models, schemas
@@ -67,8 +68,8 @@ def register_user(name: str = Form(...), image: str = Form(...), db: Session = D
     if img is None:
         raise HTTPException(status_code=400, detail="Ảnh gửi lên không hợp lệ!")
         
-    # Create user
-    new_user = models.User(name=name)
+    # Create user with local time
+    new_user = models.User(name=name, created_at=datetime.datetime.now())
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -137,6 +138,7 @@ def checkin(image: str = Form(...), model_name: str = Form("Facenet512"), db: Se
         
     log = models.AttendanceLog(
         user_id=user.id,
+        timestamp=datetime.datetime.now(),
         confidence_score=float(distance),
         model_used=model_name
     )
