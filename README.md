@@ -124,10 +124,7 @@ python3 -m venv venv
 # Trên macOS / Linux:
 source venv/bin/activate
 
-# 4. Đảm bảo hạ cấp numpy<2 để tương thích OpenCV & TensorFlow
-pip install "numpy<2"
-
-# 5. Cài đặt tất cả các thư viện cần thiết
+# 4. Cài đặt tất cả các thư viện cần thiết (đã tự động khóa numpy<2 & opencv<5)
 pip install -r requirements.txt
 
 # 6. Chạy Backend Server với Host 127.0.0.1
@@ -263,9 +260,9 @@ FACE_ID/
 - **Nguyên nhân**: Mô hình `VGG-Face` trong các bản DeepFace gần đây xuất ra vector kích thước 4096 thay vì 2622.
 - **Giải pháp**: File `vector_search.py` đã tích hợp cơ chế tự động phát hiện số chiều (Auto-adapt dimensions) cho FAISS Index nên lỗi này đã được xử lý triệt để.
 
-### 3. Lỗi `ImportError: numpy.core.multiarray failed to import`
-- **Nguyên nhân**: Thư viện OpenCV và TensorFlow yêu cầu `numpy < 2.0.0`.
-- **Giải pháp**: Chạy lệnh `pip install "numpy<2"` để cài phiên bản NumPy `1.26.4` tương thích.
+### 3. Lỗi `AttributeError: module 'cv2' has no attribute 'CascadeClassifier'` hoặc `numpy` conflict
+- **Nguyên nhân**: Do cài đặt đồng thời cả `opencv-python` và `opencv-python-headless` hoặc nâng cấp nhầm OpenCV 5.x (`numpy>=2`).
+- **Giải pháp**: Đã được xử lý tự động trong `run.bat` / `run.sh` / `requirements.txt`. Nếu chạy thủ công, gỡ sạch OpenCV bằng `pip uninstall -y opencv-python opencv-python-headless` sau đó chạy `pip install -r requirements.txt`.
 
 ---
 

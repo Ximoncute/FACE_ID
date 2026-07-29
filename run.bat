@@ -11,14 +11,16 @@ REM 1. Kiem tra va cai dat Backend Python va Dependencies
 if not exist "%ROOT_DIR%backend\venv" (
     echo [!] Chua tim thay moi truong venv. Dang tao backend\venv...
     python -m venv "%ROOT_DIR%backend\venv"
-    echo [!] Dang cai dat pip va thu vien Python requirements.txt...
-    call "%ROOT_DIR%backend\venv\Scripts\activate"
-    python -m pip install --upgrade pip
-    python -m pip install "numpy<2"
-    python -m pip install -r "%ROOT_DIR%backend\requirements.txt"
 ) else (
-    echo [OK] Mien truong backend\venv da san sang.
+    echo [OK] Moi truong backend\venv da san sang.
 )
+
+echo [!] Dang kiem tra va dong bo thu vien Python (requirements.txt)...
+call "%ROOT_DIR%backend\venv\Scripts\activate"
+python -m pip install --upgrade pip --quiet
+REM Tu dong xoa opencv-python neu bi xung dot voi opencv-python-headless
+python -m pip uninstall -y opencv-python opencv-contrib-python opencv-contrib-python-headless >nul 2>&1
+python -m pip install -r "%ROOT_DIR%backend\requirements.txt"
 
 REM 2. Kiem tra va cai dat Frontend npm dependencies
 if not exist "%ROOT_DIR%frontend\node_modules" (

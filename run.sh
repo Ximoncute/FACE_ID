@@ -14,10 +14,12 @@ echo ""
 if [ ! -d "backend/venv" ]; then
     echo "[!] Chưa tìm thấy môi trường ảo backend/venv. Đang tự động khởi tạo..."
     python3 -m venv backend/venv
-    echo "[!] Đang cài đặt các gói phụ thuộc Python (requirements.txt)..."
-    backend/venv/bin/pip install --upgrade pip
-    backend/venv/bin/pip install -r backend/requirements.txt
 fi
+
+echo "[!] Đang kiểm tra và đồng bộ các gói phụ thuộc Python (requirements.txt)..."
+backend/venv/bin/pip install --upgrade pip --quiet
+backend/venv/bin/pip uninstall -y opencv-python opencv-contrib-python opencv-contrib-python-headless >/dev/null 2>&1
+backend/venv/bin/pip install -r backend/requirements.txt
 
 # 2. Kiểm tra node_modules của Frontend
 if [ ! -d "frontend/node_modules" ]; then

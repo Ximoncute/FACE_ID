@@ -11,7 +11,6 @@ class UserResponse(BaseModel):
     created_at: datetime
     class Config:
         from_attributes = True
-        orm_mode = True
 
 class AttendanceLogResponse(BaseModel):
     id: int
@@ -22,7 +21,6 @@ class AttendanceLogResponse(BaseModel):
     model_used: str
     class Config:
         from_attributes = True
-        orm_mode = True
 
 class RecognitionResult(BaseModel):
     user_id: int
